@@ -214,4 +214,9 @@ QStringList SMTSolver::solve(QStringList listExpression)
     reset();
     return resultExp;
 }
+void SMTSolver::setBIT_LENGTH(int value)
+{
+    BIT_LENGTH = value;
+}
+
 

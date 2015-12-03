@@ -20,6 +20,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_solverBtn_clicked()
 {
 
+    mSmtSolver->setBIT_LENGTH(ui->numOfBits->value());
 
     QStringList expressList = ui->inputTextEdit->toPlainText().trimmed().split("\n");
 

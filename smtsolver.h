@@ -446,6 +446,8 @@ public:
 
     QStringList solve(QStringList listExpression);
 
+    void setBIT_LENGTH(int value);
+
 private:
     QFile * ruleFlie;
     QTextStream * ruleStreamWrite;
