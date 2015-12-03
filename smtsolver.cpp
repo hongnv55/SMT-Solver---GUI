@@ -1,8 +1,9 @@
 #include "smtsolver.h"
-
+#include <QCoreApplication>
 
 using namespace std;
 using namespace Minisat;
+
 
 //=================================================================================================
 
@@ -28,6 +29,11 @@ static void SIGINT_exit(int) {
 
 SMTSolver::SMTSolver()
 {
+
+
+    QString applicationPath = QCoreApplication::applicationDirPath();
+
+    qDebug() << "application path:" << applicationPath;
 
     ruleFileName = "rule.txt";
     cnfFileName = "clause.cnf";
@@ -102,7 +108,11 @@ void SMTSolver::runSATSolver(string resultFileName, SimpSolver &S)
                 printf("|                                                                             |\n"); }
 
             if (!S.okay()){
-                if (res != NULL) fprintf(res, "UNSAT\n"), fclose(res);
+                if (res != NULL)
+                {
+                    fprintf(res, "UNSAT\n");
+                    fclose(res);
+                }
                 if (S.verbosity > 0){
                     printf("===============================================================================\n");
                     printf("Solved by simplification\n");
@@ -157,18 +167,19 @@ void SMTSolver::reset()
     mapBitVariables.clear();
     mListVariable.clear();
     ruleFlie->close();
+    ruleStreamWrite->reset();
 }
 
 QStringList SMTSolver::solve(QStringList listExpression)
 {
     if (!ruleFlie->open(QIODevice::WriteOnly))
     {
-        qDebug() << "create " << ruleFileName << " now";
+//        qDebug() << "create " << ruleFileName << " now";
         return QStringList();
     }
 
     foreach (QString var, listExpression) {
-        qDebug() << "var = " << var;
+//        qDebug() << "var = " << var;
         expressionSolver(*ruleStreamWrite, var);
     }
     ruleFlie->close();
@@ -177,19 +188,27 @@ QStringList SMTSolver::solve(QStringList listExpression)
     SimpSolver simpleSolver;
     runSATSolver("result.txt", simpleSolver);
 
-
     QStringList resultExp;
-    foreach (QString var, mListVariable) {
-        QString result = "";
-        for (int i = 0; i < BIT_LENGTH; i++)
-        {
-            int varSAT = mapBitVariables.key(QString("%1_%2").arg(var).arg(i));
-            result.push_front(simpleSolver.model[varSAT - 1] == l_True ? "1" : "0");
-        }
-        bool test = false;
-//        qDebug() << var << " = " << result.toInt(&test, 2);
 
-        resultExp.append(QString("%1 = %2\n").arg(var).arg(result.toInt(&test, 2)));
+    vec<Lit> dummy;
+    lbool ret = simpleSolver.solveLimited(dummy);
+
+    if (ret == l_False || ret == l_Undef)
+    {
+        resultExp.append("Cannot calculate!");
+    }
+    else
+    {
+        foreach (QString var, mListVariable) {
+            QString result = "";
+            for (int i = 0; i < BIT_LENGTH; i++)
+            {
+                int varSAT = mapBitVariables.key(QString("%1_%2").arg(var).arg(i));
+                result.push_front(simpleSolver.model[varSAT - 1] == l_True ? "1" : "0");
+            }
+            bool test = false;
+            resultExp.append(QString("%1 = %2\n").arg(var).arg(result.toInt(&test, 2)));
+        }
     }
 
     reset();

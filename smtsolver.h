@@ -58,7 +58,13 @@ public:
             result.append(carryIndex);
         }
 
-        QString sumAtBitEnd = QString("!%1_%3 || %2_%4 \n!%2_%4 || %1_%3\n").arg(__z).arg(carry).arg(BIT_LENGTH).arg(BIT_LENGTH-1);
+        QString __xBitEnd = QString("!%1_%2 \n").arg(__x).arg(BIT_LENGTH-1);
+        result.append(__xBitEnd);
+        QString __yBitEnd = QString("!%1_%2 \n").arg(__y).arg(BIT_LENGTH-1);
+        result.append(__yBitEnd);
+
+
+        QString sumAtBitEnd = QString("!%1_%3 || %2_%4 \n!%2_%4 || %1_%3\n").arg(__z).arg(carry).arg(BIT_LENGTH - 1).arg(BIT_LENGTH - 2);
         result.append(sumAtBitEnd);
 
         bool isXInt = false, isYInt = false, isZInt = false;
@@ -432,8 +438,6 @@ public:
         QString sumOfLeftSide = sumOfSide(textStream, leftSideEles);
         QString sumOfRightSide = sumOfSide(textStream, rightSideEles);
 
-    //    textStream << generateSumRule(sumOfLeftSide, "0", sumOfRightSide);
-
         textStream << generateEqualRule(sumOfLeftSide, sumOfRightSide);
     }
 
@@ -446,10 +450,10 @@ private:
     QFile * ruleFlie;
     QTextStream * ruleStreamWrite;
 
-    QString ruleFileName = "rule.txt";
-    QString cnfFileName = "clause.cnf";
-    int BIT_LENGTH = 8;
-    int globalIndex = 1;
+    QString ruleFileName;
+    QString cnfFileName;
+    int BIT_LENGTH;
+    int globalIndex;
     QMap<int,QString> mapBitVariables;
     QStringList mListVariable;
 
