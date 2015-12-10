@@ -1,5 +1,6 @@
 #include "smtsolver.h"
 #include <QCoreApplication>
+#include <ctime>
 
 using namespace std;
 using namespace Minisat;
@@ -37,7 +38,7 @@ SMTSolver::SMTSolver()
 
     ruleFileName = "rule.txt";
     cnfFileName = "clause.cnf";
-    BIT_LENGTH = 8;
+    BIT_LENGTH = 16;
     globalIndex = 1;
     mapBitVariables.clear();
     mListVariable.clear();
@@ -162,16 +163,23 @@ void SMTSolver::reset()
 {
     ruleFileName = "rule.txt";
     cnfFileName = "clause.cnf";
-    BIT_LENGTH = 8;
+    BIT_LENGTH = 16;
     globalIndex = 1;
     mapBitVariables.clear();
     mListVariable.clear();
     ruleFlie->close();
     ruleStreamWrite->reset();
+    mMultiplyStringList.clear();
+    mExpsList.clear();
 }
 
 QStringList SMTSolver::solve(QStringList listExpression)
 {
+
+    const clock_t begin_time = clock();
+    // do something
+
+
     if (!ruleFlie->open(QIODevice::WriteOnly))
     {
 //        qDebug() << "create " << ruleFileName << " now";
@@ -195,10 +203,14 @@ QStringList SMTSolver::solve(QStringList listExpression)
 
     if (ret == l_False || ret == l_Undef)
     {
-        resultExp.append("Cannot calculate!");
+        resultExp.append("Calculate faild!");
     }
     else
     {
+
+        QString secs = QString("Duration: ") + QString::number(float( clock () - begin_time ) /  CLOCKS_PER_SEC);
+        resultExp.append(secs);
+
         foreach (QString var, mListVariable) {
             QString result = "";
             for (int i = 0; i < BIT_LENGTH; i++)
@@ -207,7 +219,7 @@ QStringList SMTSolver::solve(QStringList listExpression)
                 result.push_front(simpleSolver.model[varSAT - 1] == l_True ? "1" : "0");
             }
             bool test = false;
-            resultExp.append(QString("%1 = %2\n").arg(var).arg(result.toInt(&test, 2)));
+            resultExp.append(QString("%1 = %2; ").arg(var).arg(result.toInt(&test, 2)));
         }
     }
 
@@ -216,7 +228,7 @@ QStringList SMTSolver::solve(QStringList listExpression)
 }
 void SMTSolver::setBIT_LENGTH(int value)
 {
-    BIT_LENGTH = value;
+//    BIT_LENGTH = value;
 }
 
 

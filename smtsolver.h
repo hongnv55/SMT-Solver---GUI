@@ -37,7 +37,21 @@ public:
     QString generateSumRule(QString __x, QString __y, QString __z)
     {
 
-        qDebug() << __x << "+" << __y << "=" << __z;
+//        qDebug() << __x << "+" << __y << "=" << __z;
+
+        QString expsString = __x+"+"+__y+"="+__z;
+
+        qDebug() << expsString;
+        if (mExpsList.contains(expsString))
+        {
+            qDebug() << "expression was created rule";
+            return "";
+        }
+        else
+        {
+            mExpsList.append(expsString);
+        }
+
 
     //    QString carry = QString("c_").append("%1+%2").arg(__x).arg(__y);
         QString carry = QString("carry").append("%1").arg(__z);
@@ -301,13 +315,34 @@ public:
 
         if (coef >=2)
         {
+
+            QString multiString = QString::number(coef)+varText;
+            if (mMultiplyStringList.contains(multiString))
+            {
+                qDebug() << multiString << " HAS MULTI STRING, DONE NEED TO CREATE RULE OF IT";
+                return;
+            }
+            else
+            {
+                mMultiplyStringList.append(multiString);
+            }
+
+
             QString sumLooping = "2"+varText;
-            textStream << generateSumRule(varText,varText,sumLooping);
+            QString outRule = generateSumRule(varText,varText,sumLooping);
+            if (outRule != "")
+                textStream << outRule;
+
             for (int i = 1; i <= (coef - 2); i++)
             {
                 QString oldSumLooping = sumLooping;
                 sumLooping = QString::number(2+i)+varText;
-                textStream << generateSumRule(oldSumLooping,varText,sumLooping);
+
+                outRule = generateSumRule(oldSumLooping,varText,sumLooping);
+                if (outRule != "")
+                    textStream << outRule;
+                //old
+//                textStream << generateSumRule(oldSumLooping,varText,sumLooping);
             }
         }
 
@@ -416,6 +451,8 @@ public:
             QString sumTemp = varsOnSide.at(0);
             multiplySolver(textStream, sumTemp);
 
+
+            QString outRule;
             for (int i = 1; i < varsOnSide.count(); i++)
             {
                 QString varAtI = varsOnSide.at(i);
@@ -423,7 +460,12 @@ public:
 
                 QString oldSumTemp = sumTemp;
                 sumTemp = oldSumTemp + "+" + varAtI;
-                textStream << generateSumRule(oldSumTemp, varAtI, sumTemp);
+
+                outRule = generateSumRule(oldSumTemp, varAtI, sumTemp);
+                if (outRule != "")
+                    textStream << outRule;
+//                //old
+//                textStream << generateSumRule(oldSumTemp, varAtI, sumTemp);
             }
             return sumTemp;
         }
@@ -458,7 +500,8 @@ private:
     int globalIndex;
     QMap<int,QString> mapBitVariables;
     QStringList mListVariable;
-
+    QStringList mMultiplyStringList;
+    QStringList mExpsList;
 };
 
 #endif // SMTSOLVER_H
