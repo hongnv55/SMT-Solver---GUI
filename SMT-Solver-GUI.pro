@@ -46,5 +46,6 @@ HEADERS  += mainwindow.h \
 FORMS    += mainwindow.ui
 
 macx: LIBS += -L$$PWD/lib/ -lz.1
+unix: LIBS += -L$$PWD/lib/ -lz
 INCLUDEPATH += /usr/include/
 DEPENDPATH += /usr/include/
